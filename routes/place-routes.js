@@ -10,20 +10,23 @@ router.get("/:pid", placeControll.getPlaceById)
 
 router.get("/user/:uid", placeControll.getPlaceByUserId)
 
-router.post("/", [
-    check("title").not().isEmpty(),
-    check("address").not().isEmpty(),
-    check("description").isLength({ min: 5 })
-
-], placeControll.createPlace)
+router.post("/",
+    [
+        check("title").not().isEmpty(),
+        check("address").not().isEmpty(),
+        check("description").isLength({ min: 5 })
+    ],
+    placeControll.createPlace)
 router.get("/", placeControll.getPlace)
-router.patch("/:pid",
+router.patch("/users/:pid",
     [
         check("title").not().isEmpty(),
         check("address").not().isEmpty(),
         check("description").isLength({ min: 5 })
     ]
-    , placeControll.update)
+    ,
+    placeControll.update);
+
 router.delete("/:pid", placeControll.deletePlace)
 
 module.exports = router;
