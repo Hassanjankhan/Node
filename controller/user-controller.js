@@ -3,15 +3,6 @@ const { validationResult } = require("express-validator")
 const User = require("../modal/user")
 const { v4: uuidv4 } = require('uuid');
 
-const DummyUser = [
-    {
-        id: uuidv4(),
-        name: 'Hassan',
-        email: 'hassan@gmail.com',
-        pass: "Test@123"
-    }
-]
-
 const getUsers = async (req, res, next) => {
     let users;
     try {
@@ -62,7 +53,6 @@ const signUpUser = async (req, res, next) => {
 
 const loginUser = async (req, res, next) => {
     const { email, pass } = req.body;
-    console.log(email,pass)
     let existingUser;
     try {
         existingUser = await User.findOne({ email: email });
@@ -73,7 +63,6 @@ const loginUser = async (req, res, next) => {
         return;
 
     }
-    console.log(await User.find())
     if (!existingUser || existingUser.password != pass) {
         return next(new HttpError("Invalid Cridental Please Try Agian", 200));
 

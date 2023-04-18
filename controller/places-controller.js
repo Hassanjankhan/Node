@@ -5,19 +5,6 @@ const mongoose = require("mongoose")
 const Place = require("../modal/place")
 const HttpError = require("../modal/http-error");
 const User = require("../modal/user")
-let Dummy_Places = [
-    {
-        id: "pi",
-        title: "Empire State Building",
-        description: "A quick brown fox jumps over the lazy dog",
-        location: {
-            lat: 198.33,
-            long: 3422.43
-        },
-        address: "20 m w20 ",
-        creator: "m2"
-    }
-]
 const getPlaceById = async (req, resp, next) => {
     let placeId = req.params.pid;
     let placeObject = null;
@@ -84,7 +71,6 @@ const createPlace = async (req, res, next) => {
     }
 
     try {
-        console.log("user", user.places)
         const sess = await mongoose.startSession();
         sess.startTransaction();
         await createPlace.save({ session: sess });
@@ -93,7 +79,6 @@ const createPlace = async (req, res, next) => {
         await sess.commitTransaction();
 
     } catch (eror) {
-        console.log("error", eror)
         throw new HttpError("Creating place error please try agian", 500);
 
     }
@@ -146,12 +131,8 @@ const update = async (req, res, next) => {
 const deletePlace = async (req, res, next) => {
     const deleteId = req.params.pid;
     let place = null;
-    console.log("delete id", deleteId)
 
     try {
-        // place = await Place.deleteOne({ "_id": deleteId });
-        // console.log(place)
-
         place = await Place.findById(deleteId).populate("creator")
     } catch (err) {
         console.log(err)

@@ -5,11 +5,8 @@ const router = express.Router();
 
 const placeControll = require("../controller/places-controller")
 
-
 router.get("/:pid", placeControll.getPlaceById)
-
 router.get("/user/:uid", placeControll.getPlaceByUserId)
-
 router.post("/",
     [
         check("title").not().isEmpty(),
@@ -26,7 +23,5 @@ router.patch("/users/:pid",
     ]
     ,
     placeControll.update);
-
 router.delete("/:pid", placeControll.deletePlace)
-
 module.exports = router;
