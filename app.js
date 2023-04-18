@@ -24,6 +24,7 @@ app.use((error, req, res, next) => {
 })
 mongoose.connect("mongodb+srv://hassanjan:Search123@cluster0.mugdkxn.mongodb.net/places?retryWrites=true&w=majority")
     .then(res => {
+        console.log("Listen to port 5000")
         app.listen(5000)
     })
     .catch(error => {
