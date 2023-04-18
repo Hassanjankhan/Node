@@ -1,10 +1,10 @@
 
 const { v4: uuidv4 } = require('uuid');
 const { validationResult } = require("express-validator")
-
+const mongoose = require("mongoose")
 const Place = require("../modal/place")
-const HttpError = require("../modal/http-error")
-
+const HttpError = require("../modal/http-error");
+const User = require("../modal/user")
 let Dummy_Places = [
     {
         id: "pi",
@@ -64,7 +64,7 @@ const createPlace = async (req, res, next) => {
 
     const { title, address, description, coordinate, creator } = req.body;
 
-    let object = new Place({
+    let createPlace = new Place({
         title,
         address,
         description,
@@ -72,13 +72,33 @@ const createPlace = async (req, res, next) => {
         image: 'https://picsum.photos/200/300',
         creator
     })
+    let user;
     try {
-        await object.save()
-    } catch (error) {
-        console.log(error)
-        throw new HttpError("Creating place error please try agian", 500);
+        user = await User.findById(creator)
+    } catch (err) {
+        return next(new HttpError("Error on creating", 500))
     }
-    res.status(201).json({ place: object })
+    if (!user) {
+        const err = new HttpError("User id not exist", 404);
+        return next(err);
+    }
+
+    try {
+        console.log("user", user.places)
+        const sess = await mongoose.startSession();
+        sess.startTransaction();
+        await createPlace.save({ session: sess });
+        user.places.push(createPlace);
+        await user.save({ session: sess })
+        await sess.commitTransaction();
+
+    } catch (eror) {
+        console.log("error", eror)
+        throw new HttpError("Creating place error please try agian", 500);
+
+    }
+
+    res.status(201).json({ place: createPlace })
 }
 const getPlace = async (req, res, next) => {
     let array = []
@@ -132,17 +152,27 @@ const deletePlace = async (req, res, next) => {
         // place = await Place.deleteOne({ "_id": deleteId });
         // console.log(place)
 
-        place = await Place.findByIdAndRemove(deleteId, req.body, function (err, docs) {
-            if (!err) {
-                console.log(docs);
-            }
-            else {
-                console.log(err);
-            }
-        });
+        place = await Place.findById(deleteId).populate("creator")
     } catch (err) {
         console.log(err)
         const e = new HttpError("Could not found item in db", 500)
+        return next(e)
+    }
+    try {
+        const sess = mongoose.startSession();
+        await sess.startTransaction();
+        await place.remove(
+            {
+                session: sess
+            }
+        );
+        place.create.pleaces.pull(place);
+        await place.create.save({ session: sess });
+        await sess.commitTransaction()
+
+    } catch (err) {
+        console.log(err)
+        const e = new HttpError("Remove record from db getting error.", 500)
         return next(e)
     }
     res.status(200).json({ "message": "Record delete successfully" })

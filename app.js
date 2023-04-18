@@ -22,7 +22,6 @@ app.use((error, req, res, next) => {
     res.status(error.code || 500);
     res.json({ message: error.message || "An unknow error occured" })
 })
-
 mongoose.connect("mongodb+srv://hassanjan:Search123@cluster0.mugdkxn.mongodb.net/places?retryWrites=true&w=majority")
     .then(res => {
         app.listen(5000)

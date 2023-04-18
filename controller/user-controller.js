@@ -27,7 +27,7 @@ const signUpUser = async (req, res, next) => {
     if (!isError.isEmpty()) {
         throw new HttpError("Please check your data", 404)
     }
-    const { email, pass, } = req.body;
+    const { name, email, pass, image, } = req.body;
 
     let existingUser;
     try {
@@ -48,7 +48,7 @@ const signUpUser = async (req, res, next) => {
         email,
         image: 'https://picsum.photos/200/300',
         password: pass,
-        place
+        place: []
     })
     try {
         await createUser.save();
@@ -61,8 +61,8 @@ const signUpUser = async (req, res, next) => {
 }
 
 const loginUser = async (req, res, next) => {
-    const { name, email, pass, image, place } = req.body;
-
+    const { email, pass } = req.body;
+    console.log(email,pass)
     let existingUser;
     try {
         existingUser = await User.findOne({ email: email });
@@ -73,11 +73,12 @@ const loginUser = async (req, res, next) => {
         return;
 
     }
+    console.log(await User.find())
     if (!existingUser || existingUser.password != pass) {
         return next(new HttpError("Invalid Cridental Please Try Agian", 200));
 
     }
-    res.status(200).json({ "message": "Login successfully", "user": existingUser })
+    res.status(200).json({ "message": "Login successfully","user": existingUser.toObject({ getters: true }) })
 }
 
 
