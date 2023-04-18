@@ -41,7 +41,7 @@ const getPlaceByUserId = async (req, res, next) => {
     const userId = req.params.uid;
     let placeCreater = null
     try {
-        placeCreater = await Place.find({ creator: userId })
+        placeCreater = await User.find(userId).populate('places')
     } catch (error) {
         return next(new HttpError("Some thing went wrong fetching places failed.", 500))
 
@@ -51,7 +51,7 @@ const getPlaceByUserId = async (req, res, next) => {
     if (!placeCreater) {
         return next(new HttpError("Could not find a place agint the user.", 400))
     }
-    res.json({ placeCreater: placeCreater.map(place => place.toObject({ gatters: true })) })
+    res.json({ placeCreater: placeCreater.places.map(place => place.toObject({ gatters: true })) })
 }
 
 const createPlace = async (req, res, next) => {
